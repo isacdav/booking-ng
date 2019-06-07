@@ -1,4 +1,5 @@
 export class Rental {
+    _
     id: string;
     title: string;
     city: string;
