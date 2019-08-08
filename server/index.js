@@ -6,8 +6,8 @@ const FakeDb = require('./models/fake-db');
 
 const rentalRoutes = require('./routes/rentals');
 
-mongoose.connect(config.DB_URL).then(() => {
-    const fakeDb = new FakeDb();
+mongoose.connect(config.DB_URI).then(() => {
+    //const fakeDb = new FakeDb();
     //fakeDb.seedDb();
 });
 
