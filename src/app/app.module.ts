@@ -7,6 +7,10 @@ import { HeaderComponent } from './common/header/header.component';
 import { RentalComponent } from './rental/rental.component';
 
 import { RentalModule } from './rental/rental.module';
+import { AuthComponent } from './auth/auth.component';
+import { LoginComponent } from './auth/login/login.component';
+import { RegisterComponent } from './auth/register/register.component';
+import { AuthModule } from './auth/auth.module';
 
 const routes: Routes = [
   { path: '', redirectTo: '/rentals', pathMatch: 'full' },
@@ -20,7 +24,8 @@ const routes: Routes = [
   imports: [
     RouterModule.forRoot(routes),
     BrowserModule,
-    RentalModule
+    RentalModule,
+    AuthModule
   ],
   providers: [],
   bootstrap: [AppComponent]
