@@ -106,8 +106,8 @@ exports.register = function(req, res) {
     user.save(function(err) {
       if (err) {
         return res
-        .status(422)
-        .send({ errors: [{ errors: normalizeErrors(err.errors) }] });
+          .status(422)
+          .send({ errors: [{ errors: normalizeErrors(err.errors) }] });
       }
 
       return res.json({ registered: true });

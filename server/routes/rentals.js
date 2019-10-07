@@ -3,34 +3,36 @@ const router = express.Router();
 const Rental = require('../models/rental');
 const UserCtrl = require('../controllers/user');
 
-router.get('/secret', UserCtrl.authMiddleware, function(req, res){
-    res.json({"Secret": true});
+router.get('/secret', UserCtrl.authMiddleware, function(req, res) {
+  res.json({ Secret: true });
 });
 
 router.get('', function(req, res) {
-    Rental.find({}, function(err, foundRentals) {
-        res.json(foundRentals);
+  Rental.find({})
+    .select('-bookings')
+    .exec(function(err, foundRentals) {
+      res.json(foundRentals);
     });
 });
 
-router.get('/:rentalId', function(req, res){
+router.get('/:rentalId', function(req, res) {
+  const rentalId = req.params.rentalId;
 
-    const rentalId = req.params.rentalId;
-
-    Rental.findById(rentalId, function(err, foundRental){
-
-        if(err) {
-            res.status(442).send({
-                errors: [
-                    {
-                        title: 'Rental Error',
-                        detail: 'Could not find the rental'
-                    }
-                ]
-            });
-        }
-
-        res.json(foundRental);
+  Rental.findById(rentalId)
+    .populate('user', 'username -_id')
+    .populate('bookings', 'startAt endAt -_id')
+    .exec(function(err, foundRental) {
+      if (err) {
+        return res.status(442).send({
+          errors: [
+            {
+              title: 'Rental Error',
+              detail: 'Could not find the rental'
+            }
+          ]
+        });
+      }
+      return res.json(foundRental);
     });
 });
 
