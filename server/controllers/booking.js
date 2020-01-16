@@ -1,8 +1,8 @@
-const Booking = require('../models/booking');
-const Rental = require('../models/rental');
-const User = require('../models/user');
-const { normalizeErrors } = require('../helpers/moongose');
-const moment = require('moment');
+const Booking = require("../models/booking");
+const Rental = require("../models/rental");
+const User = require("../models/user");
+const { normalizeErrors } = require("../helpers/moongose");
+const moment = require("moment");
 
 exports.createBooking = function(req, res) {
   const { startAt, endAt, totalPrice, guests, days, rental } = req.body;
@@ -13,12 +13,13 @@ exports.createBooking = function(req, res) {
     endAt,
     totalPrice,
     guests,
-    days
+    days,
+    user: user.id
   });
 
   Rental.findById(rental._id)
-    .populate('bookings')
-    .populate('user')
+    .populate("bookings")
+    .populate("user")
     .exec(function(err, foundRental) {
       if (err) {
         return res
@@ -30,7 +31,7 @@ exports.createBooking = function(req, res) {
         return res.status(422).send({
           errors: [
             {
-              title: 'Woops',
+              title: "Woops",
               detail: "You can't reserve your own rental"
             }
           ]
@@ -39,7 +40,7 @@ exports.createBooking = function(req, res) {
 
       if (isValidBooking(booking, foundRental)) {
         booking.user = user;
-        booking.rental = rental;
+        booking.rental = foundRental;
 
         foundRental.bookings.push(booking);
 
@@ -48,8 +49,8 @@ exports.createBooking = function(req, res) {
             return res.status(422).send({
               errors: [
                 {
-                  title: 'Invalid',
-                  detail: 'Choosen dates have been already taken'
+                  title: "Invalid",
+                  detail: "Choosen dates have been already taken"
                 }
               ]
             });
@@ -75,8 +76,8 @@ exports.createBooking = function(req, res) {
         return res.status(422).send({
           errors: [
             {
-              title: 'Invalid',
-              detail: 'Choosen dates have been already taken'
+              title: "Invalid",
+              detail: "Choosen dates have been already taken"
             }
           ]
         });
