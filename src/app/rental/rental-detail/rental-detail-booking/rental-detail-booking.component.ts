@@ -1,31 +1,124 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { Rental } from '../../shared/rental.model';
+import * as moment from "moment";
+import {
+  Component,
+  OnInit,
+  Input,
+  ViewChild,
+  ViewEncapsulation
+} from "@angular/core";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { ToastrService } from "ngx-toastr";
+import { DaterangePickerComponent } from "ng2-daterangepicker";
+
+import { Rental } from "../../shared/rental.model";
+import { Booking } from "../../../booking/shared/booking.model";
+import { HelperService } from "../../../common/service/helper.service";
+import { BookingService } from "../../../booking/shared/booking.service";
 
 @Component({
-  selector: 'bapp-rental-detail-booking',
-  templateUrl: './rental-detail-booking.component.html',
-  styleUrls: ['./rental-detail-booking.component.scss']
+  encapsulation: ViewEncapsulation.None,
+  selector: "bapp-rental-detail-booking",
+  templateUrl: "./rental-detail-booking.component.html",
+  styleUrls: ["./rental-detail-booking.component.scss"]
 })
 export class RentalDetailBookingComponent implements OnInit {
-  @Input() price: number;
+  @Input() rental: Rental;
+
+  @ViewChild(DaterangePickerComponent)
+  private picker: DaterangePickerComponent;
+
+  newBooking: Booking;
   daterange: any = {};
-
-  constructor() {}
-
-  ngOnInit() {}
+  bookedOutDays: any[] = [];
+  modalRef: any;
+  errors: any[] = [];
 
   options: any = {
-    locale: { format: 'YYYY-MM-DD' },
+    locale: { format: Booking.DATE_FORMAT },
     alwaysShowCalendars: false,
-    opens: 'left'
+    autoUpdateInput: false,
+    opens: "left",
+    isInvalidDate: this.invalidDates.bind(this)
   };
 
-  selectedDate(value: any, datepicker?: any) {
-    datepicker.start = value.start;
-    datepicker.end = value.end;
+  constructor(
+    private helper: HelperService,
+    private modalService: NgbModal,
+    private bookingService: BookingService,
+    private toastr: ToastrService
+  ) {}
 
-    this.daterange.start = value.start;
-    this.daterange.end = value.end;
-    this.daterange.label = value.label;
+  ngOnInit() {
+    this.newBooking = new Booking();
+    this.getBookedOutDates();
+  }
+
+  private invalidDates(date) {
+    return (
+      this.bookedOutDays.includes(this.helper.getDateFormatedBooking(date)) ||
+      date.diff(moment(), "days") < 0
+    );
+  }
+
+  private addNewBookedDays(bookingData: any) {
+    const dateRange = this.helper.getBookingRangeOfDates(
+      bookingData.startAt,
+      bookingData.endAt
+    );
+    this.bookedOutDays.push(...dateRange);
+  }
+
+  private getBookedOutDates() {
+    const bookings: Booking[] = this.rental.bookings;
+
+    if (bookings && bookings.length > 0) {
+      bookings.forEach((booking: Booking) => {
+        const dateRange = this.helper.getBookingRangeOfDates(
+          booking.startAt,
+          booking.endAt
+        );
+        this.bookedOutDays.push(...dateRange);
+      });
+    }
+  }
+
+  private resetDatePicker() {
+    this.picker.datePicker.setStartDate(moment());
+    this.picker.datePicker.setEndDate(moment());
+    this.picker.datePicker.element.val("");
+  }
+
+  openConfirmModal(content) {
+    this.errors = [];
+    this.modalRef = this.modalService.open(content);
+  }
+
+  createBooking() {
+    this.newBooking.rental = this.rental;
+
+    this.bookingService.crateBooking(this.newBooking).subscribe(
+      bookingData => {
+        this.addNewBookedDays(bookingData);
+        this.newBooking = new Booking();
+        this.modalRef.close();
+        this.resetDatePicker();
+        this.toastr.success(
+          "Your booking has been succesfully created. You can check in the manage section.",
+          "Done!",
+          { timeOut: 10000 }
+        );
+      },
+      (resp: any) => {
+        this.errors = resp.error.errors;
+      }
+    );
+  }
+
+  selectedDate(value: any, datepicker?: any) {
+    this.options.autoUpdateInput = true;
+    this.newBooking.startAt = this.helper.getDateFormatedBooking(value.start);
+    this.newBooking.endAt = this.helper.getDateFormatedBooking(value.end);
+    this.newBooking.days = -value.start.diff(value.end, "days");
+    this.newBooking.totalPrice = this.newBooking.days * this.rental.dailyRate;
   }
 }

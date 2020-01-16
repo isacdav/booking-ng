@@ -15,7 +15,7 @@
       <div class="col-md-8">
         <div class="rental">
           <h2 class="rental-type {{ rental.category }}">
-            {{ rental.shared ? 'Shared' : 'Whole' }} {{ rental.category }}
+            {{ rental.shared ? "Shared" : "Whole" }} {{ rental.category }}
           </h2>
           <h1 class="rental-title">{{ rental.title }}</h1>
           <h2 class="rental-city">{{ rental.city | ucwords }}</h2>
@@ -53,7 +53,9 @@
         </div>
       </div>
       <div class="col-md-4">
-        <bapp-rental-detail-booking [price]="rental.dailyRate"></bapp-rental-detail-booking>
+        <bapp-rental-detail-booking
+          [rental]="rental"
+        ></bapp-rental-detail-booking>
       </div>
     </div>
   </div>

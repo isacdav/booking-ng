@@ -22,5 +22,5 @@ app.use('/api/v1/bookings', bookingRoutes);
 const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, function() {
-  console.log('running');
+  console.log('Server is running');
 });
