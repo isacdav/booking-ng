@@ -1,60 +1,21 @@
-const Rental = require('./rental');
-const User = require('./user');
+const Rental = require("./rental");
+const User = require("./user");
+const Booking = require("./booking");
+
+const MockData = require("./data.json");
 
 class FakeDb {
   constructor() {
-    this.rentals = [
-      {
-        title: 'Nice view on ocean',
-        city: 'San Francisco',
-        street: 'Main street',
-        category: 'condo',
-        image:
-          'https://booksync-jerga-prod.s3.amazonaws.com/uploads/rental/image/5/image.jpeg',
-        bedrooms: 4,
-        shared: true,
-        description: 'Very nice apartment in center of the city.',
-        dailyRate: 43
-      },
-      {
-        title: 'Modern apartment in center',
-        city: 'New York',
-        street: 'Time Square',
-        category: 'apartment',
-        image:
-          'https://booksync-jerga-prod.s3.amazonaws.com/uploads/rental/image/5/image.jpeg',
-        bedrooms: 1,
-        shared: false,
-        description: 'Very nice apartment in center of the city.',
-        dailyRate: 11
-      },
-      {
-        title: 'Old house in nature',
-        city: 'Spisska Nova Ves',
-        street: 'Banicka 1',
-        category: 'house',
-        image:
-          'https://booksync-jerga-prod.s3.amazonaws.com/uploads/rental/image/5/image.jpeg',
-        bedrooms: 5,
-        shared: true,
-        description: 'Very nice apartment in center of the city.',
-        dailyRate: 23
-      }
-    ];
+    this.rentals = MockData.rentals;
 
-    this.users = [
-      {
-        username: 'Test User',
-        email: 'test@gmail.com',
-        password: 'test'
-      }
-    ];
+    this.users = MockData.users;
   }
 
   pushDataToDb() {
     const user = new User(this.users[0]);
+    // const user1 = new User(this.users[1]);
 
-    this.rentals.forEach((rental) => {
+    this.rentals.forEach(rental => {
       const newRental = new Rental(rental);
       newRental.user = user;
       user.rentals.push(newRental);
@@ -62,11 +23,13 @@ class FakeDb {
     });
 
     user.save();
+    // user1.save();
   }
- 
+
   async cleanDb() {
     await User.remove({});
     await Rental.remove({});
+    await Booking.remove({});
   }
 
   async seedDb() {
