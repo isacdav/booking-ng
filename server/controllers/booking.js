@@ -24,7 +24,7 @@ exports.createBooking = function(req, res) {
       if (err) {
         return res
           .status(422)
-          .send({ errors: [{ errors: normalizeErrors(err.errors) }] });
+          .send({ errors: normalizeErrors(err.errors) });
       }
 
       if (foundRental.user.id === user.id) {

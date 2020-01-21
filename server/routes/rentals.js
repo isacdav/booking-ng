@@ -60,14 +60,16 @@ router.post("", UserCtrl.authMiddleware, function(req, res) {
 
   Rental.create(rental, function(err, newRental) {
     if (err) {
-      return res
-        .status(422)
-        .send({ errors: [{ errors: normalizeErrors(err.errors) }] });
+      return res.status(422).send({ errors: normalizeErrors(err.errors) });
     }
 
-	User.update({_id: user._id}, {$push: {rentals: newRental}}, function(){});
-	
-	return res.json(newRental);
+    User.update(
+      { _id: user._id },
+      { $push: { rentals: newRental } },
+      function() {}
+    );
+
+    return res.json(newRental);
   });
 });
 
@@ -79,9 +81,7 @@ router.get("", function(req, res) {
     .select("-bookings")
     .exec(function(err, foundRentals) {
       if (err) {
-        return res
-          .status(422)
-          .send({ errors: [{ errors: normalizeErrors(err.errors) }] });
+        return res.status(422).send({ errors: normalizeErrors(err.errors) });
       }
 
       if (city && foundRentals.length === 0) {

@@ -1,39 +1,37 @@
-@import 'variables';
+@import "variables";
 
 a {
-    &:hover, &focus {
-        text-decoration: none;
-    }
+  &:hover,
+  &focus {
+    text-decoration: none;
+  }
 }
 
 .bwm-card {
-    border: none;
+  border: none;
+  margin-bottom: 25px;
 
+  .card-block {
+    padding-top: 8px;
 
-    .card-block {
-      padding-top: 8px;
+    .card-subtitle {
+      margin: 0;
+      font-weight: 500;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
 
+    .card-title {
+      font-size: 19px;
+      margin: 3px 0;
+      color: $main-text-color;
+    }
 
-      .card-subtitle {
-        margin: 0;
-        font-weight: 500;
-        font-size: 12px;
-        text-transform: uppercase;
-      }
-
-
-      .card-title {
-        font-size: 19px;
-        margin: 3px 0;
-        color: $main-text-color;
-      }
-
-
-      .card-text {
-        font-size: 14px;
-        font-weight: 300;
-        color: #7e7e7e;
-        margin-bottom: 0;
-      }
+    .card-text {
+      font-size: 14px;
+      font-weight: 300;
+      color: #7e7e7e;
+      margin-bottom: 0;
     }
   }
+}

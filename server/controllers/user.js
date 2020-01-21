@@ -1,7 +1,7 @@
-const User = require('../models/user');
-const { normalizeErrors } = require('../helpers/moongose');
-const jwt = require('jsonwebtoken');
-const config = require('../config/def');
+const User = require("../models/user");
+const { normalizeErrors } = require("../helpers/moongose");
+const jwt = require("jsonwebtoken");
+const config = require("../config/def");
 
 exports.auth = function(req, res) {
   const { email, password } = req.body;
@@ -10,8 +10,8 @@ exports.auth = function(req, res) {
     return res.status(422).send({
       errors: [
         {
-          title: 'Data missing',
-          detail: 'Provide email and password'
+          title: "Data missing",
+          detail: "Provide email and password"
         }
       ]
     });
@@ -19,17 +19,15 @@ exports.auth = function(req, res) {
 
   User.findOne({ email }, function(err, user) {
     if (err) {
-      return res
-        .status(422)
-        .send({ errors: [{ errors: normalizeErrors(err.errors) }] });
+      return res.status(422).send({ errors: normalizeErrors(err.errors) });
     }
 
     if (!user) {
       return res.status(422).send({
         errors: [
           {
-            title: 'Invalid user',
-            detail: 'User does not exist'
+            title: "Invalid user",
+            detail: "User does not exist"
           }
         ]
       });
@@ -42,14 +40,14 @@ exports.auth = function(req, res) {
           userName: user.username
         },
         config.SECRET,
-        { expiresIn: '1h' }
+        { expiresIn: "1h" }
       );
 
       return res.json(token);
     } else {
       return res
         .status(422)
-        .send({ errors: [{ 'Wrong data': 'Wrong email or password' }] });
+        .send({ errors: [{ "Wrong data": "Wrong email or password" }] });
     }
   });
 };
@@ -61,8 +59,8 @@ exports.register = function(req, res) {
     return res.status(422).send({
       errors: [
         {
-          title: 'Data missing',
-          detail: 'Provide username, email and password'
+          title: "Data missing",
+          detail: "Provide username, email and password"
         }
       ]
     });
@@ -72,8 +70,8 @@ exports.register = function(req, res) {
     return res.status(422).send({
       errors: [
         {
-          title: 'Invalid Password',
-          detail: 'Password is not the same as confirmation'
+          title: "Invalid Password",
+          detail: "Password is not the same as confirmation"
         }
       ]
     });
@@ -81,17 +79,15 @@ exports.register = function(req, res) {
 
   User.findOne({ email }, function(err, existingUser) {
     if (err) {
-      return res
-        .status(422)
-        .send({ errors: [{ errors: normalizeErrors(err.errors) }] });
+      return res.status(422).send({ errors: normalizeErrors(err.errors) });
     }
 
     if (existingUser) {
       return res.status(422).send({
         errors: [
           {
-            title: 'Invalid email',
-            detail: 'User with the email provided already exists'
+            title: "Invalid email",
+            detail: "User with the email provided already exists"
           }
         ]
       });
@@ -105,9 +101,7 @@ exports.register = function(req, res) {
 
     user.save(function(err) {
       if (err) {
-        return res
-          .status(422)
-          .send({ errors: [{ errors: normalizeErrors(err.errors) }] });
+        return res.status(422).send({ errors: normalizeErrors(err.errors) });
       }
 
       return res.json({ registered: true });
@@ -136,15 +130,15 @@ exports.authMiddleware = function(req, res, next) {
 };
 
 function parseToken(token) {
-  return jwt.verify(token.split(' ')[1], config.SECRET);
+  return jwt.verify(token.split(" ")[1], config.SECRET);
 }
 
 function notAuthorized(res) {
   return res.status(401).send({
     errors: [
       {
-        title: 'Not authorized!',
-        detail: 'Please Log In'
+        title: "Not authorized!",
+        detail: "Please Log In"
       }
     ]
   });
