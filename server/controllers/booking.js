@@ -1,8 +1,8 @@
-const Booking = require("../models/booking");
-const Rental = require("../models/rental");
-const User = require("../models/user");
-const { normalizeErrors } = require("../helpers/moongose");
-const moment = require("moment");
+const Booking = require('../models/booking');
+const Rental = require('../models/rental');
+const User = require('../models/user');
+const { normalizeErrors } = require('../helpers/moongose');
+const moment = require('moment');
 
 exports.createBooking = function(req, res) {
   const { startAt, endAt, totalPrice, guests, days, rental } = req.body;
@@ -18,20 +18,18 @@ exports.createBooking = function(req, res) {
   });
 
   Rental.findById(rental._id)
-    .populate("bookings")
-    .populate("user")
+    .populate('bookings')
+    .populate('user')
     .exec(function(err, foundRental) {
       if (err) {
-        return res
-          .status(422)
-          .send({ errors: normalizeErrors(err.errors) });
+        return res.status(422).send({ errors: normalizeErrors(err.errors) });
       }
 
       if (foundRental.user.id === user.id) {
         return res.status(422).send({
           errors: [
             {
-              title: "Woops",
+              title: 'Woops',
               detail: "You can't reserve your own rental"
             }
           ]
@@ -49,8 +47,8 @@ exports.createBooking = function(req, res) {
             return res.status(422).send({
               errors: [
                 {
-                  title: "Invalid",
-                  detail: "Choosen dates have been already taken"
+                  title: 'Invalid',
+                  detail: 'Choosen dates have been already taken'
                 }
               ]
             });
@@ -76,12 +74,26 @@ exports.createBooking = function(req, res) {
         return res.status(422).send({
           errors: [
             {
-              title: "Invalid",
-              detail: "Choosen dates have been already taken"
+              title: 'Invalid',
+              detail: 'Choosen dates have been already taken'
             }
           ]
         });
       }
+    });
+};
+
+exports.getUserBookings = function(req, res) {
+  const user = res.locals.user;
+
+  Booking.where({ user })
+    .populate('rental')
+    .exec(function(err, foundBookings) {
+      if (err) {
+        return res.status(422).send({ errors: normalizeErrors(err.errors) });
+      }
+
+      return res.json(foundBookings);
     });
 };
 
