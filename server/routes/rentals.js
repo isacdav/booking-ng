@@ -1,27 +1,43 @@
-const express = require("express");
-const router = express.Router();
-const Rental = require("../models/rental");
-const User = require("../models/user");
-const UserCtrl = require("../controllers/user");
-const { normalizeErrors } = require("../helpers/moongose");
+//TODO: move all logic to a rental controller
 
-router.get("/secret", UserCtrl.authMiddleware, function(req, res) {
+const express = require('express');
+const router = express.Router();
+const Rental = require('../models/rental');
+const User = require('../models/user');
+const UserCtrl = require('../controllers/user');
+const { normalizeErrors } = require('../helpers/moongose');
+
+router.get('/secret', UserCtrl.authMiddleware, function(req, res) {
   res.json({ Secret: true });
 });
 
-router.get("/:rentalId", function(req, res) {
+router.get('/manage', UserCtrl.authMiddleware, function(req, res) {
+  const user = res.locals.user;
+
+  Rental.where({ user })
+    .populate('bookings')
+    .exec(function(err, foundRentals) {
+      if (err) {
+        return res.status(422).send({ errors: normalizeErrors(err.errors) });
+      }
+
+      return res.json(foundRentals);
+    });
+});
+
+router.get('/:rentalId', function(req, res) {
   const rentalId = req.params.rentalId;
 
   Rental.findById(rentalId)
-    .populate("user", "username -_id")
-    .populate("bookings", "startAt endAt -_id")
+    .populate('user', 'username -_id')
+    .populate('bookings', 'startAt endAt -_id')
     .exec(function(err, foundRental) {
       if (err) {
         return res.status(442).send({
           errors: [
             {
-              title: "Rental Error",
-              detail: "Could not find the rental"
+              title: 'Rental Error',
+              detail: 'Could not find the rental'
             }
           ]
         });
@@ -30,7 +46,54 @@ router.get("/:rentalId", function(req, res) {
     });
 });
 
-router.post("", UserCtrl.authMiddleware, function(req, res) {
+router.delete('/:id', UserCtrl.authMiddleware, function(req, res) {
+  const user = res.locals.user;
+
+  Rental.findById(req.params.id)
+    .populate('user', '_id')
+    .populate({
+      path: 'bookings',
+      select: 'startAt',
+      match: { startAt: { gt: new Date() } }
+    })
+    .exec(function(err, foundRental) {
+      if (err) {
+        return res.status(422).send({ errors: normalizeErrors(err.errors) });
+      }
+
+      if (user.id !== foundRental.user.id) {
+        return res.status(422).send({
+          errors: [
+            {
+              title: 'Invalid user',
+              detail: 'You cannot delete others rental'
+            }
+          ]
+        });
+      }
+
+      if (foundRental.bookings.length > 0) {
+        return res.status(422).send({
+          errors: [
+            {
+              title: 'Active bookings',
+              detail: 'You cannot delete a rental with active bookings'
+            }
+          ]
+        });
+      }
+
+      foundRental.remove(function(err) {
+        if (err) {
+          return res.status(422).send({ errors: normalizeErrors(err.errors) });
+        }
+
+        return res.json({ status: 'deleted' });
+      });
+    });
+});
+
+router.post('', UserCtrl.authMiddleware, function(req, res) {
   const {
     title,
     city,
@@ -73,12 +136,12 @@ router.post("", UserCtrl.authMiddleware, function(req, res) {
   });
 });
 
-router.get("", function(req, res) {
+router.get('', function(req, res) {
   const city = req.query.city;
   const query = city ? { city: city.toLowerCase() } : {};
 
   Rental.find(query)
-    .select("-bookings")
+    .select('-bookings')
     .exec(function(err, foundRentals) {
       if (err) {
         return res.status(422).send({ errors: normalizeErrors(err.errors) });
@@ -88,8 +151,8 @@ router.get("", function(req, res) {
         return res.status(422).send({
           errors: [
             {
-              title: "Rental not found",
-              detail: "None of our rentals match the city " + city
+              title: 'Rental not found',
+              detail: 'None of our rentals match the city ' + city
             }
           ]
         });

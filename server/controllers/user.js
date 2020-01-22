@@ -40,7 +40,7 @@ exports.auth = function(req, res) {
           userName: user.username
         },
         config.SECRET,
-        { expiresIn: "1h" }
+        { expiresIn: "16h" }
       );
 
       return res.json(token);
