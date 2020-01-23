@@ -1,4 +1,4 @@
-@import "variables";
+@import 'variables';
 
 .navbar {
   padding: 20px;
@@ -19,6 +19,12 @@
     letter-spacing: 1px;
     color: $main-color;
     font-weight: 500;
+
+    img {
+      margin-left: -8px;
+      margin-top: 15px;
+      height: 20px;
+    }
   }
 
   .nav-item {
@@ -43,8 +49,8 @@
     font-size: 14;
     &:active,
     &:focus {
-	  background-color: $main-color;
-	  color: whitesmoke;
+      background-color: $main-color;
+      color: whitesmoke;
     }
   }
 }
