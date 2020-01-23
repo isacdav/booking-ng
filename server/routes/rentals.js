@@ -54,11 +54,11 @@ router.delete('/:id', UserCtrl.authMiddleware, function(req, res) {
     .populate({
       path: 'bookings',
       select: 'startAt',
-      match: { startAt: { gt: new Date() } }
+      match: { startAt: { $gt: new Date() } }
     })
     .exec(function(err, foundRental) {
       if (err) {
-        return res.status(422).send({ errors: normalizeErrors(err.errors) });
+        return res.status(422).send({ errors: normalizeErrors(err) });
       }
 
       if (user.id !== foundRental.user.id) {
