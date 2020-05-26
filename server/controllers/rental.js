@@ -32,9 +32,9 @@ exports.getRental = function (req, res) {
           errors: [
             {
               title: 'Rental Error',
-              detail: 'Could not find the rental'
-            }
-          ]
+              detail: 'Could not find the rental',
+            },
+          ],
         });
       }
       return res.json(foundRental);
@@ -57,23 +57,21 @@ exports.updateRental = function (req, res) {
           errors: [
             {
               title: 'Invalid user',
-              detail: 'You are not the rental owner'
-            }
-          ]
+              detail: 'You are not the rental owner',
+            },
+          ],
         });
       }
 
       foundRental.set(rentalData);
       foundRental.save(function (err) {
         if (err) {
-          return res.status(422).send({ errors: normalizeErrors(err) });
+          return res.status(422).send({ errors: normalizeErrors(err.errors) });
         }
 
         return res.status(200).send(foundRental);
       });
-
     });
-
 };
 
 exports.deleteRental = function (req, res) {
@@ -84,7 +82,7 @@ exports.deleteRental = function (req, res) {
     .populate({
       path: 'bookings',
       select: 'startAt',
-      match: { startAt: { $gt: new Date() } }
+      match: { startAt: { $gt: new Date() } },
     })
     .exec(function (err, foundRental) {
       if (err) {
@@ -96,9 +94,9 @@ exports.deleteRental = function (req, res) {
           errors: [
             {
               title: 'Invalid user',
-              detail: 'You cannot delete others rental'
-            }
-          ]
+              detail: 'You cannot delete others rental',
+            },
+          ],
         });
       }
 
@@ -107,9 +105,9 @@ exports.deleteRental = function (req, res) {
           errors: [
             {
               title: 'Active bookings',
-              detail: 'You cannot delete a rental with active bookings'
-            }
-          ]
+              detail: 'You cannot delete a rental with active bookings',
+            },
+          ],
         });
       }
 
@@ -133,7 +131,7 @@ exports.crateRental = function (req, res) {
     shared,
     bedrooms,
     description,
-    dailyRate
+    dailyRate,
   } = req.body;
 
   const user = res.locals.user;
@@ -147,7 +145,7 @@ exports.crateRental = function (req, res) {
     shared,
     bedrooms,
     description,
-    dailyRate
+    dailyRate,
   });
   rental.user = user;
 
@@ -159,7 +157,7 @@ exports.crateRental = function (req, res) {
     User.update(
       { _id: user._id },
       { $push: { rentals: newRental } },
-      function () { }
+      function () {}
     );
 
     return res.json(newRental);
@@ -182,12 +180,36 @@ exports.getRentals = function (req, res) {
           errors: [
             {
               title: 'Rental not found',
-              detail: 'None of our rentals match the city ' + city
-            }
-          ]
+              detail: 'None of our rentals match the city ' + city,
+            },
+          ],
         });
       }
 
       res.json(foundRentals);
+    });
+};
+
+exports.verifyUser = function (req, res) {
+  const user = res.locals.user;
+
+  Rental.findById(req.params.id)
+    .populate('user')
+    .exec(function (err, foundRental) {
+      if (err) {
+        return res.status(422).send({ errors: normalizeErrors(err.errors) });
+      }
+
+      if (foundRental.user.id !== user.id) {
+        return res
+          .status(422)
+          .send({
+            errors: [
+              { title: 'Invalid User!', detail: 'You are not rental owner!' },
+            ],
+          });
+      }
+
+      return res.json({ status: 'verified' });
     });
 };

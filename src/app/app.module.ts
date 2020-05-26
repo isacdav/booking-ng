@@ -25,7 +25,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [AppComponent, HeaderComponent],
+  declarations: [AppComponent, HeaderComponent ],
   imports: [
     RouterModule.forRoot(routes),
     BrowserModule,
@@ -38,4 +38,4 @@ const routes: Routes = [
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule { }
