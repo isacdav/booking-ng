@@ -7,7 +7,11 @@ router.get('/secret', UserCtrl.authMiddleware, RentalCtrl.secret);
 
 router.get('/manage', UserCtrl.authMiddleware, RentalCtrl.getRentalsByUser);
 
+router.get('/:id/verify-user', UserCtrl.authMiddleware, RentalCtrl.verifyUser);
+
 router.get('/:rentalId', RentalCtrl.getRental);
+
+router.patch('/:id', UserCtrl.authMiddleware, RentalCtrl.updateRental);
 
 router.delete('/:id', UserCtrl.authMiddleware, RentalCtrl.deleteRental);
 

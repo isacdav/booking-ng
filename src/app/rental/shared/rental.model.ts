@@ -1,7 +1,7 @@
-import { Booking } from "src/app/booking/shared/booking.model";
+import { Booking } from 'src/app/booking/shared/booking.model';
 
 export class Rental {
-  static readonly CATEGORIES = ["House", "Apartment", "Condo"];
+  static readonly CATEGORIES = ['house', 'apartment', 'condo'];
 
   _id: string;
   title: string;

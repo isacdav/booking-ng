@@ -26,17 +26,18 @@
             >
               Delete
             </button>
+            <a class="btn btn-warning btn-edit" routerLink="/rentals/{{rental._id}}/edit">Edit</a>
             <div *ngIf="rentalDeleteIndex === i">
               <p class="confirm-message">Do you confirm delete?</p>
               <button
                 (click)="deleteRental(rental._id)"
-                class="btn btn-warning btn-conf"
+                class="btn btn-success btn-conf"
               >
                 Yes
               </button>
               <button
                 (click)="rentalDeleteIndex = undefined"
-                class="btn btn-secondary btn-conf"
+                class="btn btn-danger btn-conf"
               >
                 No
               </button>
